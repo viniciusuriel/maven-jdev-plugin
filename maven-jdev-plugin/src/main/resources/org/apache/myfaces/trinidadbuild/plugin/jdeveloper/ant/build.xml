@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="antlib:org.apache.tools.ant" name="_artifactId_" default="all" basedir=".">
+	<property file="build.properties" />
+
+	<path id="library._artifactId_">
+  	 __artifacts__
+  </path>
+
+	<path id="classpath">
+		<path refid="library._artifactId_" />
+	</path>
+
+	<target name="all" description="Build the ADF Declaractive Project" depends="deploy,compile,copy" />
+
+	<target name="init">
+		<tstamp />
+		<mkdir dir="${output.dir}" />
+	</target>
+
+	<target name="compile" description="Compile Java source files" depends="init">
+		<javac destdir="${output.dir}" classpathref="classpath" debug="${javac.debug}" nowarn="${javac.nowarn}" deprecation="${javac.deprecation}" 
+			encoding="_encoding_" source="_source_" target="_target_">
+			<src path="_java_path_" />
+		</javac>
+	</target>
+
+	<target name="copy" description="Copy files to output directory">
+		<patternset id="copy.patterns">
+			<include name="**/*.cpx" />
+			<include name="**/*.dcx" />
+			<include name="**/*.ejx" />
+			<include name="**/*.gif" />
+			<include name="**/*.ini" />
+			<include name="**/*.jpeg" />
+			<include name="**/*.jpg" />
+			<include name="**/*.png" />
+			<include name="**/*.properties" />
+			<include name="**/*.sva" />
+			<include name="**/*.tag" />
+			<include name="**/*.tld" />
+			<include name="**/*.wsdl" />
+			<include name="**/*.xcfg" />
+			<include name="**/*.xlf" />
+			<include name="**/*.xml" />
+			<include name="**/*.xsd" />
+			<include name="**/*.xsl" />
+		</patternset>
+
+		<copy todir="${output.dir}">
+			<fileset dir="src/main/java">
+				<patternset refid="copy.patterns" />
+			</fileset>
+		</copy>
+
+	</target>
+
+	<target name="deploy" description="Deploy JDeveloper profiles" depends="compile">
+		<taskdef name="ojdeploy" classname="oracle.jdeveloper.deploy.ant.OJDeployAntTask" uri="oraclelib:OJDeployAntTask" classpath="${oracle.jdeveloper.ant.library}" />
+		<ora:ojdeploy xmlns:ora="oraclelib:OJDeployAntTask" executable="${oracle.jdeveloper.ojdeploy.path}" ora:buildscript="${oracle.jdeveloper.deploy.dir}/ojdeploy-build.xml" ora:statuslog="${oracle.jdeveloper.deploy.dir}/ojdeploy-statuslog.xml">
+			<ora:deploy>
+				<ora:parameter name="workspace" value="${oracle.jdeveloper.workspace.path}" />
+				<ora:parameter name="project" value="${oracle.jdeveloper.project.name}" />
+				<ora:parameter name="profile" value="${oracle.jdeveloper.deploy.profile.name}" />
+				<ora:parameter name="nocompile" value="false" />
+				<ora:parameter name="outputfile" value="${oracle.jdeveloper.deploy.outputfile}" />
+			</ora:deploy>
+		</ora:ojdeploy>
+	</target>
+</project>
