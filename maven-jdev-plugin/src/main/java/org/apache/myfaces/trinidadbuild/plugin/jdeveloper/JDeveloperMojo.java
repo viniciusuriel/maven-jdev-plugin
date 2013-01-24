@@ -419,7 +419,7 @@ public class JDeveloperMojo extends AbstractMojo {
 	}
 
 	private void generateWorkspace() throws MojoExecutionException, IOException {
-		if (!project.getCollectedProjects().isEmpty()) {
+		if (project.getCollectedProjects().isEmpty() && declaractive) {
 			getLog().info(
 					"Generating JDeveloper " + release + " workspace: "
 							+ project.getArtifactId());
@@ -568,7 +568,8 @@ public class JDeveloperMojo extends AbstractMojo {
 			replaceSourcePaths(projectDir, sourceRoots, resourceRoots, projectDOM);
 			replaceResourcePaths(projectDir, resourceRoots, projectDOM);
 			replaceWebSourcePaths(projectDir, webSourceRoots, projectDOM);
-			replaceDependencies(projectDir, dependencies, projectDOM);
+			//Não fazer referencia a outros projetos
+			//replaceDependencies(projectDir, dependencies, projectDOM);
 
 			if (this.declaractive) {
 				replaceTechnologiesScopes(projectName, projectDOM);
@@ -613,9 +614,8 @@ public class JDeveloperMojo extends AbstractMojo {
 		// </hash>
 		Xpp3Dom targetDOM = new Xpp3Dom("list");
 
-		for (Iterator i = project.getCollectedProjects().iterator(); i
-				.hasNext();) {
-			MavenProject collectedProject = (MavenProject) i.next();
+
+			MavenProject collectedProject = (MavenProject) project;
 			boolean projHasTests = false;
 
 			// Added in V11
@@ -629,10 +629,7 @@ public class JDeveloperMojo extends AbstractMojo {
 					"projHasTests is "
 							+ Boolean.valueOf(projHasTests).toString());
 
-			// if a child project is also a workspace, then don't
-			// put it in the .jws file. It will have its own .jws
-			// file.
-			if (!"pom".equals(collectedProject.getPackaging())) {
+			
 				File projectFile = getJProjectFile(collectedProject);
 
 				targetDOM.addChild(createProjectReferenceDOM(workspaceDir,
@@ -653,8 +650,6 @@ public class JDeveloperMojo extends AbstractMojo {
 					targetDOM.addChild(createProjectReferenceDOM(workspaceDir,
 							testProjectFile));
 				}
-			}
-		}
 
 		// TODO: use a better merge algorithm
 		removeChildren(sourceDOM);
@@ -1001,8 +996,7 @@ public class JDeveloperMojo extends AbstractMojo {
 		List libraryRefs = new LinkedList();
 		for (Iterator i = artifacts.iterator(); i.hasNext();) {
 			Artifact artifact = (Artifact) i.next();
-
-			if (!isDependentProject(artifact.getDependencyConflictId())) {
+			
 				String id = artifact.getId();
 				String path = getRelativeFile(projectDir, artifact.getFile());
 
@@ -1088,7 +1082,7 @@ public class JDeveloperMojo extends AbstractMojo {
 				}
 				
 				libraryRefs.add(id);
-			}
+			
 		}
 
 		// This boolean is set by specifying the jdev.plugin.add.libraries
@@ -1953,18 +1947,22 @@ public class JDeveloperMojo extends AbstractMojo {
 	private List<String> getProfilesExecution(MavenProject project)
 	{
 		List<String> values = new ArrayList<String>();
+		values.add(" -Ppackage -Plib-package ");
 		
-		for(Iterator<Profile> i = project.getActiveProfiles().iterator(); i.hasNext();){
-			Profile profile = i.next();
-			values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));			
-		}
-		
+		if (project != null && project.getActiveProfiles() != null){
+		    Iterator iterador = project.getActiveProfiles().iterator();
+		    if (iterador != null) {
+        		for(Iterator<Profile> i = iterador; i.hasNext();){
+        			Profile profile = i.next();
+        			values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));			
+        		}
+		    }
+		}		
 		/*this.getLog().info("Profiles " + this.project.getExecutionProject().getProjectBuildingRequest().getProfiles());
 		for(Iterator<Profile> i = this.project.getProjectBuildingRequest().getProfiles().iterator(); i.hasNext();){
 			Profile profile = i.next();
 			values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));
-		}*/
-		
+		}*/		
 		return values;
 	}
 

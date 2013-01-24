@@ -29,6 +29,7 @@
   <groupId>org.apache.myfaces.trinidadbuild</groupId>
   <artifactId>maven-jdev-plugin</artifactId>
   <packaging>maven-plugin</packaging>
+  <version>1.2.16.jenkins</version>
   <name>Apache Trinidad Maven JDev Plugin</name>
 
   <dependencies>
@@ -108,7 +109,7 @@
 				<plugin>
 					<groupId>org.apache.myfaces.trinidadbuild</groupId>
 					<artifactId>maven-jdev-plugin</artifactId>
-					<version>1.2.15-SNAPSHOT</version>
+					<version>1.2.16.jenkins</version>
 					<configuration>
 						<release>11.1.2.1.0</release>
 						<force>true</force>						
