@@ -1950,23 +1950,27 @@ public class JDeveloperMojo extends AbstractMojo {
 	}
 	
 	
-	private List<String> getProfilesExecution(MavenProject project)
-	{
-		List<String> values = new ArrayList<String>();
-		
-		for(Iterator<Profile> i = project.getActiveProfiles().iterator(); i.hasNext();){
-			Profile profile = i.next();
-			values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));			
-		}
-		
-		/*this.getLog().info("Profiles " + this.project.getExecutionProject().getProjectBuildingRequest().getProfiles());
-		for(Iterator<Profile> i = this.project.getProjectBuildingRequest().getProfiles().iterator(); i.hasNext();){
-			Profile profile = i.next();
-			values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));
-		}*/
-		
-		return values;
-	}
+    private List<String> getProfilesExecution(MavenProject project)
+    {
+        List<String> values = new ArrayList<String>();
+        values.add(" -Ppackage -Plib-package ");
+        
+        if (project != null && project.getActiveProfiles() != null){
+            Iterator iterador = project.getActiveProfiles().iterator();
+            if (iterador != null) {
+                for(Iterator<Profile> i = iterador; i.hasNext();){
+                    Profile profile = i.next();
+                    values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));          
+                }
+            }
+        }       
+        /*this.getLog().info("Profiles " + this.project.getExecutionProject().getProjectBuildingRequest().getProfiles());
+        for(Iterator<Profile> i = this.project.getProjectBuildingRequest().getProfiles().iterator(); i.hasNext();){
+            Profile profile = i.next();
+            values.add(String.format(" -D%s=%s ", profile.getActivation().getProperty().getName(), profile.getActivation().getProperty().getValue()));
+        }*/     
+        return values;
+    }
 
 	private void replaceDeploymentProfiles(String projectName, Xpp3Dom projectDOM) {
 		String profileName = this.project.getBuild().getFinalName() .replaceAll("\\.", "_").replaceAll("-", "_");
