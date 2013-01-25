@@ -441,6 +441,11 @@ public class JDeveloperMojo extends AbstractMojo {
 	private void generateProject() throws IOException, MojoExecutionException {
 		if (!"pom".equals(project.getPackaging())) {
 			File projectFile = getJProjectFile(project);
+			
+			if (projectFile.exists()){
+			  getLog().warn("ARQUIVO JPR PARA ESSE PROJETO JA EXISTE! APAGUE O ARQUIVO JPR EXISTENTE CASO DESEJE GERAR UM NOVO.");
+			  return;
+			}
 
 			// Get Project Properties to tell Mojo whether or not to add
 			// library refs and taglibs to the project.
